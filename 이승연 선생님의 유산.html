@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>이승연 선생님의 유산</title>
+  <style>
+    body {
+      font-family: 'Arial';
+      text-align: center;
+      background-color: #f9f9f9;
+    }
+    .machine {
+      margin-top: 50px;
+    }
+    .ball {
+      font-size: 40px;
+      margin: 20px;
+      transition: transform 0.5s ease;
+    }
+    .ball.animate {
+      transform: scale(1.5) rotate(10deg);
+    }
+    button {
+      font-size: 18px;
+      padding: 10px 20px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    .results {
+      margin-top: 40px;
+    }
+    .bar {
+      height: 20px;
+      margin: 5px auto;
+      background: #ddd;
+      width: 60%;
+      border-radius: 10px;
+    }
+    .fill {
+      height: 100%;
+      border-radius: 10px;
+    }
+
+    /* 애니메이션 효과 */
+    .confetti {
+      font-size: 30px;
+      animation: pop 0.6s ease forwards;
+      opacity: 0;
+    }
+    @keyframes pop {
+      0% { transform: scale(1); opacity: 0; }
+      50% { transform: scale(2); opacity: 1; }
+      100% { transform: scale(1); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <h1>이승연 선생님의 유산</h1>
+  <div class="machine">
+    <div class="ball" id="resultBall">🎱</div>
+    <button onclick="drawPrize()" id="drawBtn">뽑기 시작!</button>
+    <p id="drawResult"></p>
+    <div id="effectArea"></div>
+  </div>
+
+  <div class="results">
+    <h2>남은 상품 확률</h2>
+    <div id="oddsDisplay"></div>
+  </div>
+
+  <script>
+    const prizes = [
+      { name: '1등 (올리브영 3만원권 또는 치킨 1마리)', count: 2, color: '#ff4444' },
+      { name: '2등 (올리브영 1만원권 또는 맥도날드 1만원권)', count: 8, color: '#ff8844' },
+      { name: '3등 (마법의 고민 해결책 3개)', count: 3, color: '#ffcc44' },
+      { name: '4등 (에이바우트 5천원권)', count: 10, color: '#88cc44' },
+      { name: '5등 (다이소 물품)', count: 20, color: '#44ccee' },
+      { name: '6등 (간식)', count: 5, color: '#a28cff' }
+    ];
+
+    function getTotal() {
+      return prizes.reduce((sum, prize) => sum + prize.count, 0);
+    }
+
+    function updateOdds() {
+      const container = document.getElementById('oddsDisplay');
+      container.innerHTML = '';
+      const total = getTotal();
+
+      prizes.forEach(prize => {
+        const percent = ((prize.count / total) * 100).toFixed(1);
+        container.innerHTML += `
+          <div>${prize.name} - ${prize.count}개 (${percent}%)</div>
+          <div class="bar">
+            <div class="fill" style="width: ${percent}%; background: ${prize.color};"></div>
+          </div>
+        `;
+      });
+    }
+
+    function drawPrize() {
+      const total = getTotal();
+      const button = document.getElementById("drawBtn");
+      if (total === 0) {
+        document.getElementById('drawResult').innerText = '모든 상품이 소진되었습니다!';
+        return;
+      }
+
+      // 버튼 중복 방지
+      button.disabled = true;
+
+      // 공 애니메이션 효과
+      const ball = document.getElementById('resultBall');
+      ball.classList.add("animate");
+
+      setTimeout(() => {
+        ball.classList.remove("animate");
+
+        let rand = Math.floor(Math.random() * total);
+        let sum = 0;
+        for (let i = 0; i < prizes.length; i++) {
+          sum += prizes[i].count;
+          if (rand < sum) {
+            prizes[i].count--;
+            ball.innerText = '🎉';
+            document.getElementById('drawResult').innerText = `${prizes[i].name} 당첨!`;
+            showEffect();
+            updateOdds();
+            button.disabled = false;
+            return;
+          }
+        }
+      }, 700); // 효과 끝난 후 실행
+    }
+
+    function showEffect() {
+      const effect = document.createElement("div");
+      effect.className = "confetti";
+      effect.innerText = "🎊";
+      const area = document.getElementById("effectArea");
+      area.innerHTML = ""; // 기존 효과 제거
+      area.appendChild(effect);
+    }
+
+    updateOdds();
+  </script>
+</body>
+</html>
