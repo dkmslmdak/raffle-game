@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>형오 선생님의 스페셜 뽑기</title>
+  <style>
+    body {
+      font-family: 'Arial';
+      text-align: center;
+      background-color: #f9f9f9;
+    }
+    .machine {
+      margin-top: 50px;
+    }
+    .ball {
+      font-size: 40px;
+      margin: 20px;
+    }
+    button {
+      font-size: 18px;
+      padding: 10px 20px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    .results {
+      margin-top: 40px;
+    }
+    .bar {
+      height: 20px;
+      margin: 5px auto;
+      background: #ddd;
+      width: 60%;
+      border-radius: 10px;
+    }
+    .fill {
+      height: 100%;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>형오 선생님의 🎁 스페셜 뽑기</h1>
+  <div class="machine">
+    <div class="ball" id="resultBall">🎱</div>
+    <button onclick="drawPrize()">뽑기 시작!</button>
+    <p id="drawResult"></p>
+  </div>
+
+  <div class="results">
+    <h2>남은 상품 확률</h2>
+    <div id="oddsDisplay"></div>
+  </div>
+
+  <script>
+    const prizes = [
+      { name: '1등 (기프티콘 3만원)', count: 1, color: '#ff4444' },
+      { name: '2등 (기프티콘 1만원)', count: 2, color: '#ff8844' },
+      { name: '3등 (기프티콘 5천원)', count: 3, color: '#ffcc44' },
+      { name: '4등 (음료쿠폰)', count: 4, color: '#88cc44' },
+      { name: '5등 (간식)', count: 10, color: '#44ccee' }
+    ];
+
+    function getTotal() {
+      return prizes.reduce((sum, prize) => sum + prize.count, 0);
+    }
+
+    function updateOdds() {
+      const container = document.getElementById('oddsDisplay');
+      container.innerHTML = '';
+      const total = getTotal();
+
+      prizes.forEach(prize => {
+        const percent = ((prize.count / total) * 100).toFixed(1);
+        container.innerHTML += `
+          <div>${prize.name} - ${prize.count}개 (${percent}%)</div>
+          <div class="bar">
+            <div class="fill" style="width: ${percent}%; background: ${prize.color};"></div>
+          </div>
+        `;
+      });
+    }
+
+    function drawPrize() {
+      const total = getTotal();
+      if (total === 0) {
+        document.getElementById('drawResult').innerText = '모든 상품이 소진되었습니다!';
+        return;
+      }
+
+      let rand = Math.floor(Math.random() * total);
+      let sum = 0;
+      for (let i = 0; i < prizes.length; i++) {
+        sum += prizes[i].count;
+        if (rand < sum) {
+          prizes[i].count--;
+          document.getElementById('resultBall').innerText = '🎉';
+          document.getElementById('drawResult').innerText = `${prizes[i].name} 당첨!`; 
+          updateOdds();
+          return;
+        }
+      }
+    }
+
+    updateOdds();
+  </script>
+</body>
+</html>
